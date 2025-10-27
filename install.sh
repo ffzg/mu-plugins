@@ -1,8 +1,13 @@
 #!/bin/sh
 
-ls -d /srv/www/*/wp-content/plugins | cut -d/ -f-5 | while read path ; do
-	cd $path
+find /srv/www -name wp-config.php | while read path ; do
+	path=$( echo $path | sed 's,/wp-config.php,/wp-content,' )
 	echo -n "## $path - "
+
+	if [ -e $path/plugins/wp-fail2ban ] ; then
+		wp --allow-root plugin uninstall wp-fail2ban --deactivate
+	fi
+
       	if [ -L $path/mu-plugins ] ; then
 		if [ $( readlink $path/mu-plugins ) = '/srv/mu-plugins' ] ; then
 			echo OK installed symlink
