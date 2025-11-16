@@ -29,7 +29,8 @@ function log_event_to_syslog( $message, $priority = LOG_INFO ) {
     }
 
     // Prepare the full log message
-    $full_message = sprintf( 'WordPress Event: %s | Performed by: %s.', $message, $user_info );
+    $site_url = get_option('siteurl');
+    $full_message = sprintf( 'WordPress Event: %s | Site: %s | Performed by: %s.', $message, $site_url, $user_info );
 
     // Send to syslog
     if ( openlog( 'wordpress', LOG_PID, LOG_USER ) ) {
