@@ -66,6 +66,11 @@ if (!defined('WP_FAIL2BAN_PROXIES')) {
     define('WP_FAIL2BAN_PROXIES', '127.0.0.1');
 }
 
+// XXX -- dpavlin -- block user enumeration by default
+if (!defined('WP_FAIL2BAN_BLOCK_USER_ENUMERATION')) {
+    define('WP_FAIL2BAN_BLOCK_USER_ENUMERATION', true);
+}
+
 /**
  * @since 3.5.0 Refactored for unit testing
  */
