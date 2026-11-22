@@ -1,8 +1,8 @@
 <?php
 /*
 Plugin Name: Comprehensive Plugin & Core Lifecycle Syslog & Mail Logger + PHP 8 Auto-Patcher
-Description: Logs all WordPress core/plugin/theme/translation updates and lifecycle events to syslog, emails notifications to dpavlin+wordpress@ffzg.hr, and applies post-upgrade PHP 8 compatibility fixes for legacy WordPress installations.
-Version: 3.0
+Description: Logs all WordPress core/plugin/theme/translation updates and lifecycle events to syslog, applies post-upgrade PHP 8 compatibility fixes for legacy WordPress installations, and emails dpavlin+wordpress@ffzg.hr only on errors or patched sites.
+Version: 3.1
 Author: FFZG Infrastructure
 */
 
@@ -252,7 +252,8 @@ function ffzg_apply_post_upgrade_php8_fixes( $base_dir = ABSPATH ) {
 }
 
 /**
- * Sends a data-dense engineering notification email to FFZG_WP_UPDATE_NOTIFY_EMAIL.
+ * Sends a data-dense engineering notification email to FFZG_WP_UPDATE_NOTIFY_EMAIL
+ * only when the update failed or post-upgrade PHP 8 patches were applied.
  *
  * @param string $type        Update type (core, plugin, theme, translation).
  * @param string $action      Update action (update, install).
@@ -261,6 +262,13 @@ function ffzg_apply_post_upgrade_php8_fixes( $base_dir = ABSPATH ) {
  * @param array  $patches     List of post-upgrade PHP 8 patches applied.
  */
 function ffzg_send_update_notification( $type, $action, $status, $items, $patches ) {
+    $is_error    = ( strpos( $status, 'FAILED' ) === 0 );
+    $has_patches = ! empty( $patches );
+
+    if ( ! $is_error && ! $has_patches ) {
+        return;
+    }
+
     $hostname = function_exists( 'gethostname' ) ? gethostname() : php_uname( 'n' );
     $site_url = function_exists( 'get_option' ) ? get_option( 'siteurl' ) : 'unknown';
     $init_ver = isset( $GLOBALS['ffzg_initial_wp_version'] ) ? $GLOBALS['ffzg_initial_wp_version'] : 'unknown';
